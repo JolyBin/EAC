@@ -1,9 +1,11 @@
 from django.db import models
+
+
 from directory.models import City
 
 
 class Entity(models.Model):
-    """Юридические лица."""
+    """Модель Юридические лица."""
 
     inn = models.CharField('ИНН', primary_key=True, max_length=12, blank=True)
     name_entity = models.TextField('Наименование', blank=True)
@@ -25,18 +27,26 @@ class Entity(models.Model):
     black_list = models.BooleanField('Черный список', blank=True)
     number_stuff = models.IntegerField('Численность персонала', blank=True)
     negative = models.OneToOneField('Negative', verbose_name='Негативные показатели', on_delete=None, blank=True)
-    stop = models.OneToOneField('Stop_Params', verbose_name='Параметры блокировки', on_delete=models.CASCADE, null=True, blank=True)
+    stop = models.OneToOneField('Stop_Params', verbose_name='Параметры блокировки',
+                                on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        """Метод строкового представления модели."""
+        return str(self.inn)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Юридическое лицо или ИП'
         verbose_name_plural = 'Юридические лица или ИП'
 
 
 class Founders(models.Model):
-    """Учредители."""
+    """Модель Учредителей."""
 
     inn = models.CharField('ИНН', max_length=12)
-    type = models.CharField('Тип', choices=[('Юридическое лицо', 'Юридическое лицо'),('Физическое лицо', 'Физическое лицо')], max_length=20, blank=True)
+    type = models.CharField('Тип', choices=[('Юридическое лицо', 'Юридическое лицо'),
+                                            ('Физическое лицо', 'Физическое лицо')], max_length=20, blank=True)
     sur_ip = models.CharField('Фамилия ИП', null=True, max_length=25, default='', blank=True)
     name_ip = models.CharField('Иимя ИП', null=True, max_length=25, default='', blank=True)
     pat_ip = models.CharField('Отчество ИП', null=True, max_length=25, default='', blank=True)
@@ -45,21 +55,31 @@ class Founders(models.Model):
     address = models.ForeignKey(City, verbose_name='Адрес', on_delete=models.CASCADE, null=True, blank=True)
     inn_entity = models.ForeignKey('Entity', verbose_name='Организация/ИП', on_delete=models.CASCADE, null=True, blank=True, default='2724163941')
 
+    def __str__(self):
+        """Метод строкового представления модели."""
+        return str(self.inn)
+
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Учредитель'
         verbose_name_plural = 'Учредители'
 
 
 class Exec_Proc(models.Model):
-    """исполнительные производства."""
+    """Модель ИсполнительныХ производств."""
+
     exec_proc = models.ForeignKey('Entity', verbose_name='ИНН', on_delete=models.CASCADE, blank=True)
     date = models.DateField('Дата', blank=True)
     article = models.CharField('Статья', max_length=20, blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.article)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Статья'
         verbose_name_plural = 'Статьи'
 
@@ -70,90 +90,113 @@ class Negative(models.Model):
     text = models.TextField('Негативные показатели', blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.text)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Негативный показатель'
         verbose_name_plural = 'Негативные показатели'
 
 
 class Balance(models.Model):
-    """Бух баланс за год."""
+    """Модель Бух баланс за год."""
+
+    inn = models.ForeignKey('Entity', verbose_name='Организация', on_delete=models.CASCADE, blank=True)
+    year = models.PositiveSmallIntegerField('Год', blank=True)
+
+    def __str__(self):
+        """Метод строкового представления модели."""
+        return str(self.inn) + ' ' + str(self.year)
 
     class Meta:
+        """Мета класс модели."""
+
         unique_together = (('inn', 'year'),)
         verbose_name = 'Бух баланс'
         verbose_name_plural = 'Бух балансы'
 
-    inn = models.ForeignKey('Entity', verbose_name='организация', on_delete=models.CASCADE, blank=True)
-    year = models.PositiveSmallIntegerField('Год', blank=True)
-
-    def __str__(self):
-        return str(self.inn) + ' ' + str(self.year)
-
 
 class Sum(models.Model):
-    """Сумма за год."""
+    """Модель Суммы за год."""
     id = models.CharField('Код баланса', max_length=4, primary_key=True)
     year = models.ForeignKey('Balance', verbose_name='Год', on_delete=models.CASCADE, blank=True)
     sum = models.IntegerField('Сумма', blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.sum)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Сумма за год'
         verbose_name_plural = 'Суммы за года'
 
 
 class Branch(models.Model):
-    """Филиалы."""
+    """Модель Филиалы."""
 
     name = models.CharField('Наименование', max_length=40, blank=True)
     address = models.ForeignKey(City, verbose_name='Адрес', on_delete=models.CASCADE, blank=True)
     entity = models.ForeignKey('Entity', verbose_name='ЮР лицо', on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.name)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Филиал'
         verbose_name_plural = 'Филиалы'
 
 
 class Leader(models.Model):
-    """Руководитель."""
+    """Модель Руководитель."""
+
     inn = models.CharField('ИНН руководителя', primary_key=True, max_length=12, blank=True)
     surname = models.CharField('Фамилия', max_length=20, blank=True)
     name = models.CharField('Имя', max_length=20, blank=True)
     patronymic = models.CharField('Отчество', max_length=20, blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.surname) + ' ' + str(self.name)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Руководитель'
         verbose_name_plural = 'Руководители'
 
 
 class Activity(models.Model):
-    """Деятельность."""
+    """Модель Деятельности."""
+
     id = models.CharField('ОКВД', primary_key=True, max_length=15)
     name = models.TextField('Наименование деятельности', blank=True)
     base = models.BooleanField('Основной вид деятельности')
     activity = models.ManyToManyField('Entity', verbose_name='Организация', related_name='activity_entity', blank=True)
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return str(self.name)
 
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Деятельность'
         verbose_name_plural = 'Деятельность'
 
 
 class License(models.Model):
-    """Лицензия."""
+    """Модель Лицензии."""
+
     class Meta:
+        """Мета класс модели."""
+
         verbose_name = 'Лицензия'
         verbose_name_plural = 'Лицензии'
 
@@ -164,11 +207,18 @@ class License(models.Model):
     activity = models.TextField('Вид деятельности', default=' ')
 
     def __str__(self):
+        """Метод строкового представления модели."""
         return 'Серия: ' + str(self.series)
 
 
 class Stop_Params(models.Model):
-    """"""
+    """Модель соответствия ФЗ44."""
+
+    class Meta:
+        """Мета класс модели."""
+
+        verbose_name = 'Соответствие'
+        verbose_name_plural = 'Соответствия'
 
     license = models.BooleanField('Лиценизия действующая')
     bankrupt = models.BooleanField('Банкрот')

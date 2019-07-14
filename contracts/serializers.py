@@ -5,6 +5,7 @@ from entity.serializers import Entity_Serializer
 
 class Contracts_Serializer(serializers.ModelSerializer):
     """Сериализатор Контрактов."""
+
     custom = serializers.SerializerMethodField('_get_custom')
     offers = serializers.SerializerMethodField('_get_offer')
 
@@ -23,6 +24,8 @@ class Contracts_Serializer(serializers.ModelSerializer):
         return serializer.data
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Contarcts
         fields = ['number_contr', 'custom', 'txt_contacts', 'date_pub', 'offers', 'date_rec', 'sum_contr',
                   'close', 'cancel_contr', 'deadline', 'fine']
@@ -32,6 +35,8 @@ class Customer_Serializer(serializers.ModelSerializer):
     """Сериализатор владельца."""
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Customers
         fields = ['inn', 'ogrn', 'name_customer']
 

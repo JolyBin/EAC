@@ -1,18 +1,25 @@
 from rest_framework import serializers
+
+
 from .models import Entity, Exec_Proc, Negative, Balance, Sum, Branch, Leader, Founders, Activity, License, Stop_Params
 
 
 class Negative_Serializer(serializers.ModelSerializer):
-    """Сериализатор Негатива."""
+    """Сериализатор Негативных полей."""
+
     params = serializers.SerializerMethodField('param')
 
     @staticmethod
     def param(obj):
+        """Регулярное выражение для парсинга нарушений"""
         import re
+
         text = re.sub(r'\([^()]*\)', '', str(list(obj)[0].text))
         return text.split(';')
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Negative
         fields = ['id', 'params']
 
@@ -20,9 +27,9 @@ class Negative_Serializer(serializers.ModelSerializer):
 class Branch_Serializer(serializers.ModelSerializer):
     """Сериализация Фелиалов."""
 
-    #накрутить город
-
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Branch
         fields = ('name', 'entity')
 
@@ -31,14 +38,18 @@ class Exec_Serializer(serializers.ModelSerializer):
     """Сериализация Статей."""
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Exec_Proc
         fields = ('inn', 'date', 'article',)
 
 
 class Sum_Serializer(serializers.ModelSerializer):
-    """Сериализатор суммы."""
+    """Сериализатор Cуммы."""
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Sum
         fields = ('year', 'sum')
 
@@ -55,6 +66,8 @@ class Balance_Serializer(serializers.ModelSerializer):
         return serializer.data
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Balance
         fields = ('inn', 'year', 'sums')
 
@@ -63,14 +76,18 @@ class Activity_Serializer(serializers.ModelSerializer):
     """Сериализатор деятельности."""
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Activity
         fields = ['id', 'name', 'base', 'activity']
 
 
 class Founders_Serializer(serializers.ModelSerializer):
     """Сериализатор учредителей."""
-    #ГОРОД
+
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Founders
         fields = ['inn', 'type', 'sur_ip', 'name_ip', 'pat_ip', 'name', 'date_reg', 'inn_entity']
 
@@ -79,6 +96,8 @@ class License_Serializer(serializers.ModelSerializer):
     """Сериализатор лицензий."""
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = License
         fields = ['series', 'date_start', 'date_end', 'inn']
 
@@ -93,7 +112,7 @@ class Entity_Serializer(serializers.ModelSerializer):
     activity = serializers.SerializerMethodField('_get_activity')
     licenses = serializers.SerializerMethodField('_get_licenses')
     negative_par = serializers.SerializerMethodField('_get_negative_par')
-    #stop_params = serializers.SerializerMethodField('_get_stop')
+    stop_params = serializers.SerializerMethodField('_get_stop')
 
     @staticmethod
     def _get_exec(obj):
@@ -144,18 +163,19 @@ class Entity_Serializer(serializers.ModelSerializer):
             Activity.objects.filter(activity=obj), many=True)
         return serializer.data
 
-    # @staticmethod
-    # def _get_stop(obj):
-    #     """Получение всех детей модели Лицензии."""
-    #     serializer = Stop_Serializer(
-    #         obj.)
-    #     return serializer.data
+    @staticmethod
+    def _get_stop(obj):
+        """Получение всех детей модели Требований."""
+        serializer = Stop_Serializer(obj.stop)
+        return serializer.data
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Entity
         fields = ('inn', 'exec_proc', 'balance', 'branch', 'name_entity', 'founders', 'form', 'activity', 'licenses',
                   'ogrn', 'kpp', 'sur_ip', 'name_ip', 'pat_ip', 'date_reg', 'status', 'date_stat', 'date_term',
-                  'capital', 'address', 'leader', 'black_list', 'number_stuff', 'negative_par')
+                  'capital', 'address', 'leader', 'black_list', 'number_stuff', 'negative_par', 'stop_params')
 
 
 class Leader_Serializer(serializers.ModelSerializer):
@@ -171,6 +191,8 @@ class Leader_Serializer(serializers.ModelSerializer):
         return serializer.data
 
     class Meta:
+        """Метакласс сериализатора."""
+
         model = Leader
         fields = ['inn', 'surname', 'name', 'patronymic', 'companys']
 
@@ -178,5 +200,6 @@ class Leader_Serializer(serializers.ModelSerializer):
 class Stop_Serializer(serializers.ModelSerializer):
 
     class Meta:
+        """Метакласс сериализатора."""
         model = Stop_Params
         fields = ['license', 'bankrupt', 'acting', 'debt', 'criminal', 'rights', 'ofhor']

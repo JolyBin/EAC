@@ -3,7 +3,7 @@ from entity.models import Entity
 
 
 class Contarcts(models.Model):
-    """Модель контракта"""
+    """Модель Контракта."""
 
     number_contr = models.CharField('Номер контракта', primary_key=True, max_length=20)
     customer = models.ForeignKey('Customers', verbose_name='Заказчик', on_delete=models.CASCADE, blank=True)
@@ -18,16 +18,21 @@ class Contarcts(models.Model):
     fine = models.PositiveIntegerField('Штрафные суммы', null=True, blank=True, default=0)
 
     class Meta:
+        """Метакласс модели."""
+
         verbose_name = 'Контракт'
         verbose_name_plural = 'Контракты'
 
 
 class Customers(models.Model):
+    """Модель Заказчика."""
+
     inn = models.TextField('ИНН заказчика', primary_key=True, blank=True)
     ogrn = models.CharField('ОГРН заказчика', max_length=20, blank=True)
     name_customer = models.CharField('Наименование организации', max_length=20, blank=True)
 
     class Meta:
+        """Метакласс модели."""
         verbose_name = 'Заказчик'
         verbose_name_plural = 'Заказчики'
 

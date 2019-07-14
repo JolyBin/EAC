@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+
 from .models import Entity, Exec_Proc, Negative, Balance, Sum, Branch, Leader, Founders, Activity, License, Stop_Params
 
 
